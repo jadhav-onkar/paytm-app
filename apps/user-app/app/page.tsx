@@ -1,6 +1,15 @@
 import { Balance } from "@repo/ui/balance";
+import { getServerSession } from "next-auth";
+import { AuthOptions } from "./lib/authProvider";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function Home() {
+  const session =await getServerSession(AuthOptions)
+  if(session?.user){
+    redirect('/dashboard')
+  }else{
+    redirect('/api/auth/signin')
+  }
   return (
     <div>
       <Balance /> 

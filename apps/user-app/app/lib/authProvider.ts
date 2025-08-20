@@ -8,7 +8,7 @@ export const AuthOptions = {
         CredentialsProvider({
             name:"email",
             credentials:{
-                email: {label:"email", placeholder:"xyz@gmail.com", type:"text"},
+                email: {label:"email", placeholder:"xyz@gmail.com", type:"email"},
                 password: {label:"password", placeholder:"password", type:"password"} 
                 },
             async authorize(credentials,req){
@@ -18,7 +18,6 @@ export const AuthOptions = {
                 if(!email || !password){
                     return null
                 }
-
                 try{
                     const ExistingUser = await prisma.user.findFirst({
                         where:{
