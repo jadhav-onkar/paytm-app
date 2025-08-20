@@ -19,6 +19,8 @@ model User{
   email String @unique
   number String? @unique
   password String 
+  OnRanmpTransaction onRampTransaction[]
+  Balance Balance[]
 }
 
 model Merchant{
@@ -28,8 +30,33 @@ model Merchant{
   authtype Authtype
 }
 
+model onRampTransaction{
+  id Int @id @default(autoincrement())
+  status onRanmpStatus
+  token String @unique
+  provider String
+  amount Int
+  starttime DateTime
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Balance{
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  amount Int
+  locked Int
+  user User @relation(fields: [userId], references: [id])
+}
+
 enum Authtype {
   Google
   Github
+}
+
+enum onRanmpStatus {
+  success
+  failure
+  processing
 }
 
