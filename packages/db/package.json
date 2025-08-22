@@ -17,7 +17,8 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^6.13.0",
-    "@repo/typescript-config": "*"
+    "@repo/typescript-config": "*",
+    "bcrypt": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",

@@ -16,7 +16,7 @@ datasource db {
 model User{
   id Int @unique @id @default(autoincrement())
   name String?
-  email String @unique
+  email String? @unique
   number String? @unique
   password String 
   OnRanmpTransaction onRampTransaction[]

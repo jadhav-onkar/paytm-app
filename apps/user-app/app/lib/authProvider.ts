@@ -6,22 +6,22 @@ import bcrypt from "bcrypt"
 export const AuthOptions = {
     providers: [
         CredentialsProvider({
-            name:"email",
+            name:"number",
             credentials:{
-                email: {label:"email", placeholder:"xyz@gmail.com", type:"email"},
+                number: {label:"number", placeholder:"95875645", type:"text"},
                 password: {label:"password", placeholder:"password", type:"password"} 
                 },
             async authorize(credentials,req){
-                const email = credentials?.email
+                const number = credentials?.number
                 const password = credentials?.password || ""
                 const hashedPass = await bcrypt.hash(password, 10)
-                if(!email || !password){
+                if(!number || !password){
                     return null
                 }
                 try{
                     const ExistingUser = await prisma.user.findFirst({
                         where:{
-                            email
+                            number
                         }
                     })
                     
@@ -30,7 +30,7 @@ export const AuthOptions = {
                         if(passValidaiton){
                             return {
                                 id:ExistingUser.id.toString(),
-                                email: ExistingUser.email
+                                number: ExistingUser.number
                             }
                         }
                         return null;
@@ -43,10 +43,14 @@ export const AuthOptions = {
                 try{
                     const newUser = await prisma.user.create({
                         data:{
-                            email,
+                            number,
                             password: hashedPass,
                         }
                     })
+                    return {
+                        id: newUser.id.toString(),
+                        number: newUser.number,
+                    }
                 }
                 catch(e){
                     console.log(e, "error")
@@ -57,8 +61,16 @@ export const AuthOptions = {
     ],
     secret: process.env.JWT_SECRET || "",
     callbacks:{
+            async jwt({token, user}:any){
+                if(user){
+                    token.id = user.id
+                    token.number = user.number
+                }
+                return token
+            },
             async session({token, session}: any){
                 session.user.id = token.sub
+                session.user.number = token.number
                 return session
             }
         }     
