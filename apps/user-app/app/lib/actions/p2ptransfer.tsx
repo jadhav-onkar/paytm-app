@@ -4,13 +4,13 @@
 import { getServerSession } from "next-auth"
 import { AuthOptions } from "../authProvider"
 import { prisma } from "../prisma"
-import { error } from "console"
+import { redirect } from "next/navigation"
 
 export async function P2pTransfer(to:string, amount:number){
     const session = await getServerSession(AuthOptions)
     const from = session.user.id
     if(!from){
-        return "unauthorise user"
+        redirect("/p2ptransfer")
     }
     const isExist = await prisma.user.findFirst({
         where:{
@@ -18,7 +18,7 @@ export async function P2pTransfer(to:string, amount:number){
         }
     })
     if(!isExist){
-        return "user with phone number not exist"
+        redirect('/p2ptransfer')
     }
 
     const amountCheck = await prisma.balance.findFirst({
@@ -33,7 +33,9 @@ export async function P2pTransfer(to:string, amount:number){
         throw new Error("INSUFFICIENT_FUNDS")
     }
     try{
+
         await prisma.$transaction(async (tx)=>{
+            await tx.$queryRaw`SELECT * FROM "Balance" WHERE "userId"=${Number(from)} FOR UPDATE`;
             const deductFrom = await tx.balance.update({
                 where:{
                     userId: Number(from)
@@ -44,7 +46,7 @@ export async function P2pTransfer(to:string, amount:number){
                     }
                 }
             })
-
+            
             const addTo = await tx.balance.update({
                 where: {userId: isExist.id},
                 data:{
@@ -53,10 +55,20 @@ export async function P2pTransfer(to:string, amount:number){
                     }
                 }
             })
+            
+            const createP2p = await tx.p2pTrancaction.create({
+                data:{
+                    amount: Number(amount)*100,
+                    senderId: Number(from),
+                    ReceiverId: isExist.id,
+                    date: new Date()
+                }
+            })
+            console.log("reached here")
         })
         return {msg:"transaction succesfull"}
     }
     catch (e: any) {
-        return { msg: "internal server error || transaction failed" }
+        throw Error("internal server error || transaction failed")
     }
 }

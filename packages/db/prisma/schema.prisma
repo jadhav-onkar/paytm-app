@@ -21,6 +21,18 @@ model User{
   password String 
   OnRanmpTransaction onRampTransaction[]
   Balance Balance[]
+  sended P2pTrancaction[] @relation(name: "senderRelation")
+  received P2pTrancaction[] @relation(name: "receiverRelation")
+}
+
+model P2pTrancaction{
+  id Int @id @default(autoincrement())
+  amount Int
+  date DateTime
+  senderId Int
+  ReceiverId Int
+  Sender User @relation(name: "senderRelation", fields: [senderId], references: [id])
+  Receiver User @relation(name: "receiverRelation", fields: [ReceiverId], references: [id])
 }
 
 model Merchant{

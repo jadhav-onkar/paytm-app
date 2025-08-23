@@ -21,11 +21,22 @@ app.post("/hdfcwebhook",async (req, res)=>{
     }
 
     if (!paymentInfo.token || !paymentInfo.userId || !paymentInfo.amount){
-        res.status(404).json({
+        return res.status(404).json({
             msg:"invalid info send"
         })
     }
     try{
+
+        const checkStatus = await prisma.onRampTransaction.findFirst({
+            where:{token: paymentInfo.token},
+        })
+
+        if(checkStatus?.status == "success"){
+            return res.status(400).json({
+                msg:"already transfered"
+            })
+        }
+
         await prisma.$transaction(async(tx)=>{
             const isBalance = await tx.balance.findFirst({
                 where:{
