@@ -12,7 +12,6 @@ export default async function Home() {
     redirect('/dashboard')
   }
   
-  
   return (
     <div>
       {JSON.stringify(session.user)}
