@@ -1,0 +1,37 @@
+name: Deploy to Dockerhub
+
+on:
+  push:
+   branches:
+   - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout repo
+      uses: actions/checkout@v2
+
+    - name: log in to Docker Dockerhub
+      uses: docker/login-action@v1
+      with:
+       username: ${{ secrets.DOCKER_USERNAME }}
+       password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    - name: build and push to Dockerhub
+      uses: docker/build-push-action@v2
+      with:
+       context: .
+       file: ./Docker/Dockerfile.UserApp
+       push: true
+       tags: ganesh0230/nextapp:latest
+      
+    - name: verify pushed image
+      run: docker pull ganesh0230/nextapp:latest
+
+
+      
+  
+
+    
+
